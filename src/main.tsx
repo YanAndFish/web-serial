@@ -8,6 +8,8 @@ import App from './App.tsx'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <Theme appearance="dark" className="w-screen h-screen" accentColor="violet" radius="large">
+      <App />
+    </Theme>
   </React.StrictMode>,
 )

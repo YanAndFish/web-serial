@@ -1,3 +1,6 @@
 {
-  "extends": ["@antfu/eslint-config-ts", "@yafh/jsx"]
+  "extends": ["@antfu/eslint-config-ts", "@yafh/jsx"],
+  "rules": {
+    "react/jsx-no-undef": "off"
+  }
 }
