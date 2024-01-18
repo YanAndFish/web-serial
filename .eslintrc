@@ -1,3 +1,3 @@
 {
-  "extends": "@yafh/solid"
+  "extends": ["@antfu/eslint-config-ts", "@yafh/jsx"]
 }

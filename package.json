@@ -1,8 +1,12 @@
 {
   "name": "web-serial",
-  "private": true,
-  "version": "0.0.0",
   "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=6.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -12,18 +16,39 @@
     "postinstall": "simple-git-hooks"
   },
   "dependencies": {
-    "@unocss/reset": "^0.58.3",
-    "eslint": "^8.56.0",
+    "@radix-ui/themes": "^2.0.3",
     "lint-staged": "^15.2.0",
-    "simple-git-hooks": "^2.9.0",
-    "solid-js": "^1.8.7",
-    "unocss": "^0.58.3"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "simple-git-hooks": "^2.9.0"
   },
   "devDependencies": {
-    "@yafh/eslint-config-solid": "^0.6.1",
+    "@antfu/eslint-config-ts": "^0.43.1",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@unocss/reset": "^0.58.3",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "@yafh/eslint-config-jsx": "^0.6.1",
+    "eslint": "^8.55.0",
     "typescript": "^5.2.2",
-    "vite": "^5.0.8",
-    "vite-plugin-solid": "^2.8.0"
+    "unocss": "^0.58.3",
+    "vite": "^5.0.8"
+  },
+  "pnpm": {
+    "overrides": {
+      "array-includes": "npm:@nolyfill/array-includes@latest",
+      "array.prototype.flat": "npm:@nolyfill/array.prototype.flat@latest",
+      "array.prototype.flatmap": "npm:@nolyfill/array.prototype.flatmap@latest",
+      "array.prototype.tosorted": "npm:@nolyfill/array.prototype.tosorted@latest",
+      "es-iterator-helpers": "npm:@nolyfill/es-iterator-helpers@latest",
+      "function-bind": "npm:@nolyfill/function-bind@latest",
+      "object.assign": "npm:@nolyfill/object.assign@latest",
+      "object.entries": "npm:@nolyfill/object.entries@latest",
+      "object.fromentries": "npm:@nolyfill/object.fromentries@latest",
+      "object.hasown": "npm:@nolyfill/object.hasown@latest",
+      "object.values": "npm:@nolyfill/object.values@latest",
+      "string.prototype.matchall": "npm:@nolyfill/string.prototype.matchall@latest"
+    }
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm tsx && pnpm lint-staged"
