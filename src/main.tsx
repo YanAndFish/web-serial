@@ -4,11 +4,14 @@ import 'virtual:uno.css'
 
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+
+import './monaco'
+
 import App from './App.tsx'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <Theme appearance="dark" className="w-screen h-screen bg-slate-900" accentColor="violet" radius="large">
+    <Theme accentColor="violet" appearance="dark" className="w-screen h-screen bg-slate-900" radius="large">
       <App />
     </Theme>
   </React.StrictMode>,
