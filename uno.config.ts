@@ -1,10 +1,7 @@
-import { type UserConfig, defineConfig, presetIcons, presetUno, transformerDirectives } from 'unocss'
+import { type UserConfig, defineConfig, presetUno, transformerDirectives } from 'unocss'
 
 export default defineConfig({
   presets: [
-    presetIcons({
-      autoInstall: true,
-    }),
     presetUno(),
   ],
   transformers: [

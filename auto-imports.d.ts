@@ -82,6 +82,8 @@ declare global {
   const PopoverTrigger: typeof import('@radix-ui/themes')['PopoverTrigger']
   const Portal: typeof import('@radix-ui/themes')['Portal']
   const Quote: typeof import('@radix-ui/themes')['Quote']
+  const RSelect: typeof import('@radix-ui/themes')['Select']
+  const RText: typeof import('@radix-ui/themes')['Text']
   const RadioGroup: typeof import('@radix-ui/themes')['RadioGroup']
   const RadioGroupItem: typeof import('@radix-ui/themes')['RadioGroupItem']
   const RadioGroupRoot: typeof import('@radix-ui/themes')['RadioGroupRoot']
@@ -144,4 +146,10 @@ declare global {
   const useState: typeof import('react')['useState']
   const useSyncExternalStore: typeof import('react')['useSyncExternalStore']
   const useTransition: typeof import('react')['useTransition']
+}
+// for type re-export
+declare global {
+  // @ts-ignore
+  export type { FC } from 'react'
+  import('react')
 }

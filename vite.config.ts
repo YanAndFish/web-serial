@@ -5,11 +5,21 @@ import autoImport from 'unplugin-auto-import/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': '/src',
+    },
+  },
   plugins: [react(), unocss(), autoImport({
     dirs: [],
     dts: true,
     imports: [
       'react',
+      {
+        from: 'react',
+        imports: ['FC'],
+        type: true,
+      },
       {
         from: '@radix-ui/themes',
         imports: [
@@ -23,7 +33,7 @@ export default defineConfig({
           'AspectRatio',
           'Inset',
           'Heading',
-          'Text',
+          ['Text', 'RText'],
           'Code',
           'Em',
           'Kbd',
@@ -33,7 +43,7 @@ export default defineConfig({
           'RadioGroup',
           'RadioGroupRoot',
           'RadioGroupItem',
-          'Select',
+          ['Select', 'RSelect'],
           'SelectRoot',
           'SelectTrigger',
           'SelectContent',
