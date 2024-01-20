@@ -1,21 +1,20 @@
 import type * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import MonacoEditor from '@monaco-editor/react'
 
-export interface EditorProps extends Props {
+export interface EditorProps extends StyleProps {
   readonly?: boolean
 }
 
-export const Editor: FC<EditorProps> = ({ className, style, children, readonly }) => {
+export const Editor: FC<EditorProps> = ({ className, style, readonly }) => {
   const editor = useRef<monaco.editor.IStandaloneCodeEditor>()
 
   function handleEditorDidMount(_editor: monaco.editor.IStandaloneCodeEditor) {
     editor.current = _editor
-    _editor.layout({ width: 110, height: 120 })
   }
 
   return (
     <Card className={className} style={style}>
-      <Inset className="relative h-300px" p="0">
+      <Inset className="relative h-full" p="0">
         <MonacoEditor
           className="absolute inset-0"
           theme="vs-dark"
@@ -29,8 +28,6 @@ export const Editor: FC<EditorProps> = ({ className, style, children, readonly }
           onMount={handleEditorDidMount}
         />
       </Inset>
-      {!!children && <Inset pt="current" side="bottom">{children}</Inset>}
     </Card>
-
   )
 }

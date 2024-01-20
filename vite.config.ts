@@ -43,7 +43,7 @@ export default defineConfig({
           'RadioGroup',
           'RadioGroupRoot',
           'RadioGroupItem',
-          ['Select', 'RSelect'],
+          'Select',
           'SelectRoot',
           'SelectTrigger',
           'SelectContent',

@@ -3,21 +3,38 @@ export interface SerialSelectProps {
 }
 
 export const SerialSelect: FC<SerialSelectProps> = () => {
+  const supported = useRef<boolean>(!!navigator?.serial)
+  const [port, setPort] = useState<SerialPort>()
+
+  const buttonText = useMemo(() => {
+    if (!supported.current)
+      return '不受支持'
+    else if (port)
+      return port.getInfo().usbProductId || 'unknown'
+    else
+      return '选择一个串口'
+  }, [port])
+
   const handleRequestSerialList = useRef(async () => {
-    if (!navigator || !navigator.serial) {
-      return 1
-    }
-    else {
+    if (navigator.serial) {
       try {
-        const port = await navigator.serial.requestPort()
+        setPort(await navigator.serial.requestPort())
+
+        port?.open({
+          baudRate: 9600,
+          dataBits: 8,
+          stopBits: 1,
+          parity: 'none',
+        })
       }
       catch (err) {
         console.error(err)
+        setPort(undefined)
       }
     }
   })
 
   return (
-    <Button onClick={handleRequestSerialList.current}>houa</Button>
+    <Button disabled={!supported.current} className="w-full" onClick={handleRequestSerialList.current}>{buttonText}</Button>
   )
 }

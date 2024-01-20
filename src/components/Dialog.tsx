@@ -1,0 +1,64 @@
+import type { ShowDialogOptions } from '@/hooks/use-dialog'
+
+export interface AlertDialogProps {
+
+}
+
+export interface AlertDialogRef {
+  showDialog: (option: ShowDialogOptions) => void
+}
+
+export const Dialog = forwardRef<AlertDialogRef>((_, ref) => {
+  const [open, setOpen] = useState(false)
+  const [title, setTitle] = useState('提示')
+  const [description, setDesciption] = useState('Are you ok?')
+  const handleAction = useRef<React.MouseEventHandler<HTMLButtonElement>>(() => {})
+  const handleCancel = useRef<React.MouseEventHandler<HTMLButtonElement>>(() => {})
+  const [actionText, setActionText] = useState<string>()
+  const [cancelText, setCancelText] = useState<string>()
+
+  useImperativeHandle(ref, () => ({
+    showDialog: (option: ShowDialogOptions) => {
+      setTitle(option.title)
+      setDesciption(option.description)
+      handleAction.current = option.onAction || (() => {})
+      handleCancel.current = option.onCancel || (() => {})
+      setActionText(option.actionText)
+      setCancelText(option.cancelText)
+
+      setOpen(true)
+    },
+  }), [])
+
+  return (
+    <AlertDialog.Root open={open} onOpenChange={setOpen}>
+      <AlertDialog.Content style={{ maxWidth: 450 }}>
+        <AlertDialog.Title>{title}</AlertDialog.Title>
+        <AlertDialog.Description size="2">
+          {description}
+        </AlertDialog.Description>
+        <Flex gap="3" mt="4" justify="end">
+          {
+          !!actionText
+           && (
+             <AlertDialog.Action>
+               <Button variant="solid" color="red" onClick={handleAction.current}>
+                 {actionText}
+               </Button>
+             </AlertDialog.Action>
+           )
+          }
+
+          {
+          !!cancelText
+           && (
+             <AlertDialog.Cancel>
+               <Button variant="outline" onClick={handleCancel.current}>{cancelText}</Button>
+             </AlertDialog.Cancel>
+           )
+          }
+        </Flex>
+      </AlertDialog.Content>
+    </AlertDialog.Root>
+  )
+})
