@@ -37,12 +37,12 @@ export const Dialog = forwardRef<AlertDialogRef>((_, ref) => {
         <AlertDialog.Description size="2">
           {description}
         </AlertDialog.Description>
-        <Flex gap="3" mt="4" justify="end">
+        <Flex gap="3" justify="end" mt="4">
           {
           !!actionText
            && (
              <AlertDialog.Action>
-               <Button variant="solid" color="red" onClick={handleAction.current}>
+               <Button color="red" variant="solid" onClick={handleAction.current}>
                  {actionText}
                </Button>
              </AlertDialog.Action>

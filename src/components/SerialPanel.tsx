@@ -5,33 +5,40 @@ import { Field } from './Field'
 import { DataBitsSelect } from './DataBitsSelect'
 import { StopBitsSelect } from './StopBitsSelect'
 import { ParityTypeSelect } from './ParityTypeSelect'
+import { EditorHeader } from './EditorHeader'
 import { useSerialStore } from '@/store/serial'
 
 export interface SerialPanelProps {
 }
 
 export const SerialPanel: FC<SerialPanelProps> = () => {
-  const { baudRate, setBaudRate, parity, setParity, stopBits, setStopBits, dataBits, setDataBits } = useSerialStore()
+  const {
+    baudRate, setBaudRate,
+    parity, setParity,
+    stopBits, setStopBits,
+    dataBits, setDataBits,
+    connected,
+  } = useSerialStore()
   return (
     <Flex className="w-full h-full">
-      <Inset side="left" className="w-250px bg-$accent-a2" p="current">
-        <ScrollArea type="hover" scrollbars="vertical">
+      <Inset className="w-250px bg-$accent-a2" p="current" side="left">
+        <ScrollArea scrollbars="vertical" type="hover">
           <Card>
             <Heading size="4">串口设置</Heading>
             <Field>
               <SerialSelect />
             </Field>
             <Field label="波特率">
-              <BaudRateSelect className="w-110px" value={baudRate} onValueChange={setBaudRate} />
+              <BaudRateSelect disabled={connected} className="w-110px" value={baudRate} onValueChange={setBaudRate} />
             </Field>
             <Field label="校验位">
-              <ParityTypeSelect className="w-110px" value={parity} onValueChange={setParity} />
+              <ParityTypeSelect disabled={connected} className="w-110px" value={parity} onValueChange={setParity} />
             </Field>
             <Field label="停止位">
-              <StopBitsSelect className="w-110px" value={stopBits} onValueChange={setStopBits} />
+              <StopBitsSelect disabled={connected} className="w-110px" value={stopBits} onValueChange={setStopBits} />
             </Field>
             <Field label="数据位">
-              <DataBitsSelect className="w-110px" value={dataBits} onValueChange={setDataBits} />
+              <DataBitsSelect disabled={connected} className="w-110px" value={dataBits} onValueChange={setDataBits} />
             </Field>
           </Card>
           <Card className="mt-3">
@@ -43,7 +50,9 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
         </ScrollArea>
       </Inset>
       <Flex className="h-full h-full grow pl-3" direction="column">
+        <EditorHeader className="mb-2 " countType="receive" title="数据接收" />
         <Editor readonly className="grow-2" />
+        <EditorHeader className="mt-3" countType="send" title="数据发送" />
         <Editor className="mt-3 grow" />
       </Flex>
     </Flex>

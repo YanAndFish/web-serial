@@ -1,40 +1,71 @@
+import { ReloadIcon, UpdateIcon } from '@radix-ui/react-icons'
+import { useSerialStore } from '@/store/serial'
+
 export interface SerialSelectProps {
   value?: string
 }
 
 export const SerialSelect: FC<SerialSelectProps> = () => {
-  const supported = useRef<boolean>(!!navigator?.serial)
-  const [port, setPort] = useState<SerialPort>()
+  const { port, connected, requestPort, togglePort } = useSerialStore()
+  const supported: boolean = !!navigator.serial
+
+  const [loading, setLoading] = useState<boolean>(false)
 
   const buttonText = useMemo(() => {
-    if (!supported.current)
+    if (!supported)
       return '不受支持'
     else if (port)
-      return port.getInfo().usbProductId || 'unknown'
+      return connected ? '关闭串口' : '打开串口'
     else
       return '选择一个串口'
-  }, [port])
+  }, [port, connected])
 
-  const handleRequestSerialList = useRef(async () => {
-    if (navigator.serial) {
-      try {
-        setPort(await navigator.serial.requestPort())
-
-        port?.open({
-          baudRate: 9600,
-          dataBits: 8,
-          stopBits: 1,
-          parity: 'none',
-        })
-      }
-      catch (err) {
-        console.error(err)
-        setPort(undefined)
-      }
+  const handleTogglePort = useCallback(() => {
+    try {
+      setLoading(true)
+      togglePort()
     }
-  })
+    catch (err) {
+      console.error(err)
+    }
+    finally {
+      setLoading(false)
+    }
+  }, [togglePort])
 
   return (
-    <Button disabled={!supported.current} className="w-full" onClick={handleRequestSerialList.current}>{buttonText}</Button>
+    <Flex className="w-full">
+      {
+        port
+          ? (
+            <Button
+              className="grow"
+              color={connected ? 'cyan' : undefined}
+              variant="soft"
+              onClick={handleTogglePort}
+            >
+              {loading ? <UpdateIcon /> : buttonText}
+            </Button>
+            )
+          : (
+            <Button
+              className="grow"
+              color={connected ? 'cyan' : undefined}
+              disabled={!supported}
+              onClick={requestPort}
+            >
+              {buttonText}
+            </Button>
+            )
+      }
+      {
+        !!port
+        && (
+          <Button className="ml-2" variant="soft" onClick={requestPort}>
+            <ReloadIcon />
+          </Button>
+        )
+      }
+    </Flex>
   )
 }

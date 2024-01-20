@@ -18,7 +18,7 @@ export const WindowBox: FC<WindowBoxProps> = ({ width = 'auto', height = 'auto',
             {!!onClose && <Button color="crimson" variant="soft" onClick={onClose}><Cross1Icon height="16" width="16" /></Button>}
           </Flex>
         </Inset>
-        <Inset p="current" className="grow overflow-hidden">{children}</Inset>
+        <Inset className="grow overflow-hidden" p="current">{children}</Inset>
       </Flex>
     </Card>
   )

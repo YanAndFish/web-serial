@@ -25,7 +25,7 @@ function App() {
           <SerialPanel />
         </WindowBox>
       </Flex>
-      <Dialog ref={ref}></Dialog>
+      <Dialog ref={ref} />
     </>
   )
 }
