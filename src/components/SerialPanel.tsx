@@ -18,7 +18,21 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
     stopBits, setStopBits,
     dataBits, setDataBits,
     connected,
+    writeData,
   } = useSerialStore()
+
+  const { sendData, setSendData } = useSerialStore(s => ({ sendData: s.sendData, setSendData: s.setSendData }))
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && connected)
+        writeData()
+    }
+
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [writeData, connected])
+
   return (
     <Flex className="w-full h-full">
       <Inset className="w-250px bg-$accent-a2" p="current" side="left">
@@ -29,16 +43,16 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
               <SerialSelect />
             </Field>
             <Field label="波特率">
-              <BaudRateSelect disabled={connected} className="w-110px" value={baudRate} onValueChange={setBaudRate} />
+              <BaudRateSelect className="w-110px" disabled={connected} value={baudRate} onValueChange={setBaudRate} />
             </Field>
             <Field label="校验位">
-              <ParityTypeSelect disabled={connected} className="w-110px" value={parity} onValueChange={setParity} />
+              <ParityTypeSelect className="w-110px" disabled={connected} value={parity} onValueChange={setParity} />
             </Field>
             <Field label="停止位">
-              <StopBitsSelect disabled={connected} className="w-110px" value={stopBits} onValueChange={setStopBits} />
+              <StopBitsSelect className="w-110px" disabled={connected} value={stopBits} onValueChange={setStopBits} />
             </Field>
             <Field label="数据位">
-              <DataBitsSelect disabled={connected} className="w-110px" value={dataBits} onValueChange={setDataBits} />
+              <DataBitsSelect className="w-110px" disabled={connected} value={dataBits} onValueChange={setDataBits} />
             </Field>
           </Card>
           <Card className="mt-3">
@@ -53,7 +67,9 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
         <EditorHeader className="mb-2 " countType="receive" title="数据接收" />
         <Editor readonly className="grow-2" />
         <EditorHeader className="mt-3" countType="send" title="数据发送" />
-        <Editor className="mt-3 grow" />
+        <Editor className="mt-3 grow" value={sendData} onValueChange={setSendData}>
+          <Button disabled={!connected} onClick={writeData}>发送 Enter</Button>
+        </Editor>
       </Flex>
     </Flex>
   )

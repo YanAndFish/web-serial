@@ -1,5 +1,6 @@
 {
   "extends": ["@antfu/eslint-config-ts", "@yafh/jsx"],
+  "ignorePatterns": ["*.woff2"],
   "rules": {
     "react/jsx-no-undef": "off"
   }

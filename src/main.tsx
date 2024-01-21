@@ -1,6 +1,7 @@
 import '@unocss/reset/tailwind-compat.css'
 import '@radix-ui/themes/styles.css'
 import 'virtual:uno.css'
+import '@/assets/fonts/font.css'
 
 import React from 'react'
 import ReactDOM from 'react-dom/client'

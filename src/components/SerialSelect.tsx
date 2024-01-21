@@ -1,5 +1,7 @@
 import { ReloadIcon, UpdateIcon } from '@radix-ui/react-icons'
 import { useSerialStore } from '@/store/serial'
+import { Dialog } from '@/components/Dialog'
+import { useDialog } from '@/hooks/use-dialog'
 
 export interface SerialSelectProps {
   value?: string
@@ -10,6 +12,7 @@ export const SerialSelect: FC<SerialSelectProps> = () => {
   const supported: boolean = !!navigator.serial
 
   const [loading, setLoading] = useState<boolean>(false)
+  const { ref, showDialog } = useDialog()
 
   const buttonText = useMemo(() => {
     if (!supported)
@@ -20,13 +23,20 @@ export const SerialSelect: FC<SerialSelectProps> = () => {
       return '选择一个串口'
   }, [port, connected])
 
-  const handleTogglePort = useCallback(() => {
+  const handleTogglePort = useCallback(async () => {
     try {
       setLoading(true)
-      togglePort()
+      await togglePort()
     }
     catch (err) {
       console.error(err)
+      if (!(err instanceof DOMException)) {
+        showDialog({
+          title: '串口错误',
+          description: err instanceof Error ? err.message : String(err),
+          actionText: '了解',
+        })
+      }
     }
     finally {
       setLoading(false)
@@ -34,8 +44,9 @@ export const SerialSelect: FC<SerialSelectProps> = () => {
   }, [togglePort])
 
   return (
-    <Flex className="w-full">
-      {
+    <>
+      <Flex className="w-full">
+        {
         port
           ? (
             <Button
@@ -58,14 +69,16 @@ export const SerialSelect: FC<SerialSelectProps> = () => {
             </Button>
             )
       }
-      {
+        {
         !!port
         && (
-          <Button className="ml-2" variant="soft" onClick={requestPort}>
+          <Button className="ml-2" disabled={connected} variant="soft" onClick={requestPort}>
             <ReloadIcon />
           </Button>
         )
       }
-    </Flex>
+      </Flex>
+      <Dialog ref={ref} />
+    </>
   )
 }
