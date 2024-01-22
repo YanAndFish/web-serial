@@ -28,12 +28,7 @@ export interface SerialStore {
   sendData?: string
   setSendData: (sendData: string | undefined) => void
   clearSendData: () => void
-  port?: SerialPort
-  requestPort: () => Promise<void>
-  togglePort: (status?: 'open' | 'close') => Promise<void>
-  connected: boolean
   resolveSerialInfo: () => SerialOptions
-  writeData: () => Promise<void>
 }
 
 function createInitialState() {
@@ -120,38 +115,6 @@ export const useSerialStore = create<SerialStore>((set, store) => ({
     set({ receiveCount: 0 })
     saveCount(store)
   },
-  requestPort: async () => {
-    const { port, connected, togglePort } = store()
-    try {
-      if (port && connected)
-        togglePort('close')
-
-      const _port = await navigator.serial.requestPort()
-      // 监听串口断开事件
-      _port.addEventListener('disconnect', () => {
-        togglePort('close')
-        set({ port: undefined, connected: false })
-      })
-      set({ port: _port })
-    }
-    catch (error) {
-      set({ port: undefined })
-      throw error
-    }
-  },
-  togglePort: async (status: 'open' | 'close' = store().connected ? 'close' : 'open') => {
-    const { port, connected, resolveSerialInfo } = store()
-    const option = resolveSerialInfo()
-
-    if (connected && status === 'close') {
-      await port?.close()
-      set({ connected: false })
-    }
-    else if (!connected && status === 'open') {
-      await port?.open(option)
-      set({ connected: true })
-    }
-  },
   resolveSerialInfo: (): SerialOptions => {
     const { baudRate, dataBits, stopBits, parity } = store()
 
@@ -190,25 +153,5 @@ export const useSerialStore = create<SerialStore>((set, store) => ({
   clearSendData: () => {
     set({ sendData: '' })
     saveLog(store)
-  },
-  async writeData() {
-    const { port, connected, sendData, putSendCount } = store()
-
-    if (!sendData)
-      return
-
-    if (!port || !connected)
-      throw new Error('串口未连接')
-
-    if (!port.writable || port.writable.locked)
-      throw new Error('串口不可写')
-
-    const encoder = new TextEncoder()
-    const content = encoder.encode(sendData)
-    const contentLength = content.length
-    const writer = port.writable.getWriter()
-    await writer.write(content)
-    writer.releaseLock()
-    putSendCount(contentLength)
   },
 }))

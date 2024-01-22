@@ -7,6 +7,7 @@ import { StopBitsSelect } from './StopBitsSelect'
 import { ParityTypeSelect } from './ParityTypeSelect'
 import { EditorHeader } from './EditorHeader'
 import { useSerialStore } from '@/store/serial'
+import { usePortStore, writeData } from '@/store/port'
 
 export interface SerialPanelProps {
 }
@@ -17,9 +18,9 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
     parity, setParity,
     stopBits, setStopBits,
     dataBits, setDataBits,
-    connected,
-    writeData,
   } = useSerialStore()
+
+  const { connected } = usePortStore()
 
   const { sendData, setSendData } = useSerialStore(s => ({ sendData: s.sendData, setSendData: s.setSendData }))
 
@@ -31,7 +32,7 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
 
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [writeData, connected])
+  }, [connected])
 
   return (
     <Flex className="w-full h-full">

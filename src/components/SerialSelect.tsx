@@ -1,14 +1,14 @@
 import { ReloadIcon, UpdateIcon } from '@radix-ui/react-icons'
-import { useSerialStore } from '@/store/serial'
 import { Dialog } from '@/components/Dialog'
 import { useDialog } from '@/hooks/use-dialog'
+import { requestPort, togglePort, usePortStore } from '@/store/port'
 
 export interface SerialSelectProps {
   value?: string
 }
 
 export const SerialSelect: FC<SerialSelectProps> = () => {
-  const { port, connected, requestPort, togglePort } = useSerialStore()
+  const { port, connected } = usePortStore()
   const supported: boolean = !!navigator.serial
 
   const [loading, setLoading] = useState<boolean>(false)
@@ -30,18 +30,30 @@ export const SerialSelect: FC<SerialSelectProps> = () => {
     }
     catch (err) {
       console.error(err)
-      if (!(err instanceof DOMException)) {
-        showDialog({
-          title: '串口错误',
-          description: err instanceof Error ? err.message : String(err),
-          actionText: '了解',
-        })
-      }
+      showDialog({
+        title: '串口错误',
+        description: err instanceof Error ? err.message : String(err),
+        actionText: '了解',
+      })
     }
     finally {
       setLoading(false)
     }
-  }, [togglePort])
+  }, [])
+
+  const handleRequestPort = useCallback(async () => {
+    try {
+      await requestPort()
+    }
+    catch (err) {
+      console.error(err)
+      showDialog({
+        title: '串口错误',
+        description: err instanceof Error ? err.message : String(err),
+        actionText: '了解',
+      })
+    }
+  }, [])
 
   return (
     <>
@@ -63,7 +75,7 @@ export const SerialSelect: FC<SerialSelectProps> = () => {
               className="grow"
               color={connected ? 'cyan' : undefined}
               disabled={!supported}
-              onClick={requestPort}
+              onClick={handleRequestPort}
             >
               {buttonText}
             </Button>
@@ -72,7 +84,7 @@ export const SerialSelect: FC<SerialSelectProps> = () => {
         {
         !!port
         && (
-          <Button className="ml-2" disabled={connected} variant="soft" onClick={requestPort}>
+          <Button className="ml-2" disabled={connected} variant="soft" onClick={handleRequestPort}>
             <ReloadIcon />
           </Button>
         )
