@@ -65,7 +65,7 @@ export const SerialSelect: FC<SerialSelectProps> = () => {
               className="grow"
               color={connected ? 'cyan' : undefined}
               variant="soft"
-              onClick={handleTogglePort}
+              onClick={loading ? undefined : handleTogglePort}
             >
               {loading ? <UpdateIcon /> : buttonText}
             </Button>

@@ -5,7 +5,8 @@ import { createCountStream } from '@/utils/count-stream'
 export interface PortStore {
   port?: SerialPort
   connected: boolean
-  encodeStream?: TransformStream<string, Uint8Array>
+  writer?: WritableStreamDefaultWriter<string>
+  pipeClosed?: Promise<unknown>
 }
 
 export const usePortStore = create<PortStore>(() => ({
@@ -17,6 +18,10 @@ export const usePortStore = create<PortStore>(() => ({
 export async function closePort(port?: SerialPort) {
   try {
     port = port ?? usePortStore.getState().port
+    const { writer, pipeClosed } = usePortStore.getState()
+    usePortStore.setState({ writer: undefined, pipeClosed: undefined })
+    await writer?.close()
+    await pipeClosed
 
     await port?.close()
     usePortStore.setState({ connected: false })
@@ -28,17 +33,20 @@ export async function closePort(port?: SerialPort) {
   }
 }
 
-async function openWriteStream(type: 'text' | 'hex') {
+async function openWriteStream() {
   const { port } = usePortStore.getState()
 
   if (port?.writable) {
     const encoder = new TextEncoderStream()
     const countStream = createCountStream(useSerialStore.getState().putSendCount)
 
-    encoder.readable.pipeTo(countStream.writable)
-    countStream.readable.pipeTo(port.writable)
+    const pipeClosed: Promise<unknown> = Promise.allSettled([
+      encoder.readable.pipeTo(countStream.writable),
+      countStream.readable.pipeTo(port.writable),
+    ])
 
-    usePortStore.setState({ encodeStream: encoder })
+    const writer = encoder.writable.getWriter()
+    usePortStore.setState({ writer, pipeClosed })
   }
 }
 
@@ -49,12 +57,12 @@ export async function openPort() {
     await port?.open(resolveSerialInfo())
     usePortStore.setState({ connected: true })
 
-    await openWriteStream('text')
+    await openWriteStream()
   }
   catch (err) {
     if (err instanceof DOMException && err.name === 'InvalidStateError') {
       usePortStore.setState({ connected: true })
-      await openWriteStream('text')
+      await openWriteStream()
     }
     else { throw err }
   }
@@ -89,8 +97,7 @@ export async function requestPort() {
 }
 
 export async function writeData() {
-  const { encodeStream } = usePortStore.getState()
+  const { writer } = usePortStore.getState()
   const data = useSerialStore.getState().sendData
-
-  // await encodeStream?.writable.getWriter()
+  await writer?.write(data)
 }
