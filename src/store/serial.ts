@@ -29,6 +29,10 @@ export interface SerialStore {
   setSendData: (sendData: string | undefined) => void
   clearSendData: () => void
   resolveSerialInfo: () => SerialOptions
+  sendMode: 'text' | 'binary'
+  setSendMode: (sendMode: 'text' | 'binary') => void
+  recvMode: 'text' | 'binary'
+  setRecvMode: (recvMode: 'text' | 'binary') => void
 }
 
 function createInitialState() {
@@ -46,6 +50,8 @@ function createInitialState() {
     connected: false,
     recvData: '',
     sendData: '',
+    sendMode: 'binary',
+    recvMode: 'binary',
   })
 
   try {
@@ -153,5 +159,13 @@ export const useSerialStore = create<SerialStore>((set, store) => ({
   clearSendData: () => {
     set({ sendData: '' })
     saveLog(store)
+  },
+  setSendMode: (sendMode: 'text' | 'binary') => {
+    set({ sendMode })
+    saveInfo(store)
+  },
+  setRecvMode: (recvMode: 'text' | 'binary') => {
+    set({ recvMode })
+    saveInfo(store)
   },
 }))

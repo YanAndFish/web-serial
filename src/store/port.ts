@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { useSerialStore } from './serial'
-import { createCountStream } from '@/utils/count-stream'
+import { createDataTransferStream } from '@/utils/stream'
 
 export interface PortStore {
   port?: SerialPort
@@ -37,15 +37,14 @@ async function openWriteStream() {
   const { port } = usePortStore.getState()
 
   if (port?.writable) {
-    const encoder = new TextEncoderStream()
-    const countStream = createCountStream(useSerialStore.getState().putSendCount)
+    const dataTransfer = createDataTransferStream(() => {
+      const state = useSerialStore.getState()
+      return { mode: state.sendMode, encoding: 'utf-8' }
+    }, useSerialStore.getState().putSendCount)
 
-    const pipeClosed: Promise<unknown> = Promise.allSettled([
-      encoder.readable.pipeTo(countStream.writable),
-      countStream.readable.pipeTo(port.writable),
-    ])
+    const pipeClosed = dataTransfer.readable.pipeTo(port.writable)
 
-    const writer = encoder.writable.getWriter()
+    const writer = dataTransfer.writable.getWriter()
     usePortStore.setState({ writer, pipeClosed })
   }
 }
