@@ -39,7 +39,7 @@ async function openWriteStream() {
   if (port?.writable) {
     const dataTransfer = createDataTransferStream(() => {
       const state = useSerialStore.getState()
-      return { mode: state.sendMode, encoding: 'utf-8' }
+      return { mode: state.sendMode }
     }, useSerialStore.getState().putSendCount)
 
     const pipeClosed = dataTransfer.readable.pipeTo(port.writable)

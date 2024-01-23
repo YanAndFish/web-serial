@@ -6,6 +6,7 @@ import { DataBitsSelect } from './DataBitsSelect'
 import { StopBitsSelect } from './StopBitsSelect'
 import { ParityTypeSelect } from './ParityTypeSelect'
 import { EditorHeader } from './EditorHeader'
+import { DataModeRadio } from './DataModeRadio'
 import { useSerialStore } from '@/store/serial'
 import { usePortStore, writeData } from '@/store/port'
 
@@ -18,6 +19,8 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
     parity, setParity,
     stopBits, setStopBits,
     dataBits, setDataBits,
+    sendMode, setSendMode,
+    recvMode, setRecvMode,
   } = useSerialStore()
 
   const { connected } = usePortStore()
@@ -26,7 +29,7 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Enter' && connected)
+      if (e.key === 'Enter' && connected && e.metaKey)
         writeData()
     }
 
@@ -36,7 +39,7 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
 
   return (
     <Flex className="w-full h-full">
-      <Inset className="w-250px bg-$accent-a2" p="current" side="left">
+      <Inset className="w-250px bg-$accent-a2 rounded-0!" p="current" side="left">
         <ScrollArea scrollbars="vertical" type="hover">
           <Card>
             <Heading size="4">串口设置</Heading>
@@ -58,9 +61,21 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
           </Card>
           <Card className="mt-3">
             <Heading size="4">接收设置</Heading>
+            <Field label="接收格式">
+              <DataModeRadio value={recvMode} onValueChange={setRecvMode} />
+            </Field>
           </Card>
           <Card className="mt-3">
             <Heading size="4">发送设置</Heading>
+            <Field label="发送格式">
+              <DataModeRadio value={sendMode} onValueChange={setSendMode} />
+            </Field>
+            <Field label="定时发送" />
+            <Flex align="center">
+              <Checkbox className="mr-2" size="3" />
+              <TextField.Input size="1" type="number" />
+              <RText className="ml-2" size="2">毫秒</RText>
+            </Flex>
           </Card>
         </ScrollArea>
       </Inset>
@@ -69,7 +84,7 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
         <Editor readonly className="grow-2" />
         <EditorHeader className="mt-3" countType="send" title="数据发送" />
         <Editor className="mt-3 grow" value={sendData} onValueChange={setSendData}>
-          <Button disabled={!connected} onClick={writeData}>发送 Enter</Button>
+          <Button disabled={!connected} onClick={writeData}>发送 Meta + Enter</Button>
         </Editor>
       </Flex>
     </Flex>

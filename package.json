@@ -18,12 +18,9 @@
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",
     "@radix-ui/themes": "^2.0.3",
-    "iconv-lite": "^0.6.3",
-    "lint-staged": "^15.2.0",
     "monaco-editor": "^0.45.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "simple-git-hooks": "^2.9.0",
     "zustand": "^4.4.7"
   },
   "devDependencies": {
@@ -37,7 +34,9 @@
     "@vitejs/plugin-react-swc": "^3.5.0",
     "@yafh/eslint-config-jsx": "^0.6.1",
     "eslint": "^8.55.0",
+    "lint-staged": "^15.2.0",
     "lodash-es": "^4.17.21",
+    "simple-git-hooks": "^2.9.0",
     "typescript": "^5.2.2",
     "unocss": "^0.58.3",
     "unplugin-auto-import": "^0.17.3",

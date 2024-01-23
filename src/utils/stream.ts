@@ -1,24 +1,33 @@
-import { encode } from 'iconv-lite'
-
 export interface TransferOption {
   mode: 'text' | 'binary'
-  encoding?: string
+}
+
+function encodeHexString(hexStr: string): Uint8Array {
+  try {
+    return Uint8Array.from((hexStr.split(' ').map(hex => Number.parseInt(hex, 16))))
+  }
+  catch (err) {
+    console.error(err)
+    return Uint8Array.from([])
+  }
 }
 
 export function createDataTransferStream(configGetter: () => TransferOption, countCallback: (increase: number) => void) {
   return new TransformStream<string, Uint8Array>({
     transform(chunk, controller) {
-      const { mode, encoding } = configGetter()
+      const { mode } = configGetter()
+
+      let buf: Uint8Array
       if (mode === 'text') {
-        const buf = encode(chunk, encoding ?? 'utf-8')
-        countCallback(buf.length)
-        controller.enqueue(buf)
+        const encode = new TextEncoder()
+        buf = encode.encode(chunk)
       }
       else {
-        // todo: binary mode
-        countCallback(1)
-        controller.enqueue(new Uint8Array([1]))
+        buf = encodeHexString(chunk)
       }
+
+      countCallback(buf.length)
+      controller.enqueue(buf)
     },
   })
 }
