@@ -89,12 +89,24 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
       </Inset>
       <Flex className="h-full h-full grow pl-3" direction="column">
         <EditorHeader className="mb-2 " countType="receive" title="数据接收" />
-        <Editor autoScollOnBottom readonly className="grow-2" scrollBeyondLastLine={false} value={recvData}>
+        <Editor
+          autoScollOnBottom
+          readonly
+          className="grow-2"
+          language={`serial-${recvMode}`}
+          scrollBeyondLastLine={false}
+          value={recvData}
+        >
           <div className="grow" />
           <Button variant="soft" onClick={clearRecvData}>清空</Button>
         </Editor>
         <EditorHeader className="mt-3" countType="send" title="数据发送" />
-        <Editor className="mt-3 grow" value={sendData} onValueChange={setSendData}>
+        <Editor
+          className="mt-3 grow"
+          language={`serial-${sendMode}`}
+          value={sendData}
+          onValueChange={setSendData}
+        >
           <Button disabled={!connected} onClick={writeData}>发送 Meta + Enter</Button>
           <div className="grow" />
           <Button variant="soft" onClick={() => setSendData('')}>清空</Button>

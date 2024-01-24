@@ -22,12 +22,12 @@ function App() {
       <img className="w-90rem fixed right-0" src={bg} />
       <Flex align="center" className="w-full h-full z-2" justify="center">
         <WindowBox
-          height="80vh" heading={
+          height="80vh" width="80vw" heading={
             <>
-              <img src="/logo.jpg" height="36px" width="36px" className="rounded-2.5 mr-2.5" draggable={false} />
+              <img className="rounded-2.5 mr-2.5" draggable={false} height="36px" src="/logo.jpg" width="36px" />
               <Heading className="grow">串口调试助手</Heading>
             </>
-        } width="80vw"
+        }
         >
           <SerialPanel />
         </WindowBox>

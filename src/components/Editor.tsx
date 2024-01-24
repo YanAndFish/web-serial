@@ -7,9 +7,10 @@ export interface EditorProps extends Props {
   onValueChange?: (value: string | undefined) => void
   autoScollOnBottom?: boolean
   scrollBeyondLastLine?: boolean
+  language?: string
 }
 
-export const Editor: FC<EditorProps> = ({ className, style, readonly, children, value, onValueChange, autoScollOnBottom, scrollBeyondLastLine }) => {
+export const Editor: FC<EditorProps> = ({ className, style, readonly, children, value, onValueChange, autoScollOnBottom, scrollBeyondLastLine, language }) => {
   const editor = useRef<monaco.editor.IStandaloneCodeEditor>()
   const autoScroll = useRef<boolean>(true)
 
@@ -36,6 +37,7 @@ export const Editor: FC<EditorProps> = ({ className, style, readonly, children, 
       <Inset className="relative" p="0" side="top" style={{ height: 'calc(100% - 32px)' }}>
         <MonacoEditor
           className="absolute inset-0"
+          language={language}
           theme="vs-dark"
           value={value}
           options={{
