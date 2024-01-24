@@ -1,30 +1,24 @@
-# React + TypeScript + Vite
+# Web Serial Debuger
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Use web pages to debug serial communication devices on local computers, based on the [Web Serial API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Serial_API).
 
-Currently, two official plugins are available:
+## Online Preview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+// todo 
 
-## Expanding the ESLint configuration
+## Local Operation
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+1. clone this repo
+```shell
+git clone https://github.com/YanAndFish/web-serial.git
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+2. install deps
+```shell
+pnpm i
+```
+
+3. start serve
+```shell
+pnpm dev
+```
