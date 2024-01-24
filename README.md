@@ -2,9 +2,11 @@
 
 Use web pages to debug serial communication devices on local computers, based on the [Web Serial API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Serial_API).
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/981ec2a6-4d15-4695-b777-bb1fd8a61a5d/deploy-status)](https://app.netlify.com/sites/web-serial-debugger/deploys)
+
 ## Online Preview
 
-// todo 
+[web side](https://serial.yafh.dev/)
 
 ## Local Operation
 
