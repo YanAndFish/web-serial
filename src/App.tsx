@@ -21,7 +21,14 @@ function App() {
     <>
       <img className="w-90rem fixed right-0" src={bg} />
       <Flex align="center" className="w-full h-full z-2" justify="center">
-        <WindowBox height="80vh" title="网页串口调试助手" width="80vw">
+        <WindowBox
+          height="80vh" heading={
+            <>
+              <img src="/logo.jpg" height="36px" width="36px" className="rounded-2.5 mr-2.5" draggable={false} />
+              <Heading className="grow">串口调试助手</Heading>
+            </>
+        } width="80vw"
+        >
           <SerialPanel />
         </WindowBox>
       </Flex>
