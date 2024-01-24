@@ -63,7 +63,8 @@ export async function openPort() {
     usePortStore.setState({ connected: true })
 
     await openWriteStream()
-    createReader(port)
+    createReader(port) // 这里不会使用await，因为createReader会一直运行
+    enableAutoSend()
   }
   catch (err) {
     if (err instanceof DOMException && err.name === 'InvalidStateError') {
@@ -105,7 +106,7 @@ export async function requestPort() {
 export async function writeData() {
   const { writer } = usePortStore.getState()
   const data = useSerialStore.getState().sendData
-  await writer?.write(data)
+  await writer?.write(JSON.parse(`"${data}"`)) // 让JavaScript把字符串当做表达式计算，使得转义字符生效
 }
 
 async function createReader(port: SerialPort) {
@@ -151,4 +152,29 @@ async function createReader(port: SerialPort) {
       reader.releaseLock()
     }
   }
+}
+
+let timer: any
+
+export async function enableAutoSend() {
+  const { autoSendInterval, autoSend } = useSerialStore.getState()
+  clearInterval(timer)
+  if (!autoSend || !usePortStore.getState().connected)
+    return
+
+  try {
+    await reqIdle()
+    await writeData()
+    timer = setTimeout(() => {
+      enableAutoSend()
+    }, autoSendInterval)
+  }
+  catch (error) {
+    console.error(error)
+    useSerialStore.setState({ autoSend: false })
+  }
+}
+
+export async function abortAutoSend() {
+  clearInterval(timer)
 }

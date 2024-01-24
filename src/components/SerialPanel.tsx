@@ -1,3 +1,4 @@
+import type { ChangeEvent } from 'react'
 import { SerialSelect } from './SerialSelect'
 import { Editor } from './Editor'
 import { BaudRateSelect } from './BaudRateSelect'
@@ -21,6 +22,8 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
     dataBits, setDataBits,
     sendMode, setSendMode,
     recvMode, setRecvMode,
+    autoSend, setAutoSend,
+    autoSendInterval, setAutoSendInterval,
   } = useSerialStore()
 
   const { connected } = usePortStore()
@@ -37,6 +40,10 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [connected])
+
+  const handleUpdateAutoSendInterval = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setAutoSendInterval(+e.currentTarget.value)
+  }, [])
 
   return (
     <Flex className="w-full h-full">
@@ -73,8 +80,8 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
             </Field>
             <Field label="定时发送" />
             <Flex align="center">
-              <Checkbox className="mr-2" size="3" />
-              <TextField.Input size="1" type="number" />
+              <Checkbox checked={autoSend} className="mr-2" size="3" onCheckedChange={setAutoSend} />
+              <TextField.Input min={0} size="1" type="number" value={autoSendInterval} onChange={handleUpdateAutoSendInterval} />
               <RText className="ml-2" size="2">毫秒</RText>
             </Flex>
           </Card>
@@ -82,7 +89,7 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
       </Inset>
       <Flex className="h-full h-full grow pl-3" direction="column">
         <EditorHeader className="mb-2 " countType="receive" title="数据接收" />
-        <Editor readonly autoScollOnBottom scrollBeyondLastLine={false} className="grow-2" value={recvData}>
+        <Editor autoScollOnBottom readonly className="grow-2" scrollBeyondLastLine={false} value={recvData}>
           <div className="grow" />
           <Button variant="soft" onClick={clearRecvData}>清空</Button>
         </Editor>

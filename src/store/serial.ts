@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { abortAutoSend, enableAutoSend } from './port'
 import type { BaudRate } from '@/components/BaudRateSelect'
 import type { DataBits } from '@/components/DataBitsSelect'
 import type { StopBits } from '@/components/StopBitsSelect'
@@ -33,6 +34,10 @@ export interface SerialStore {
   setSendMode: (sendMode: 'text' | 'binary') => void
   recvMode: 'text' | 'binary'
   setRecvMode: (recvMode: 'text' | 'binary') => void
+  autoSend: boolean
+  setAutoSend: (autoSend: boolean) => void
+  autoSendInterval?: number
+  setAutoSendInterval: (autoSendInterval: number) => void
 }
 
 function createInitialState() {
@@ -52,6 +57,8 @@ function createInitialState() {
     sendData: '',
     sendMode: 'binary',
     recvMode: 'binary',
+    autoSend: false,
+    autoSendInterval: 0,
   })
 
   try {
@@ -171,6 +178,15 @@ export const useSerialStore = create<SerialStore>((set, store) => ({
   },
   setRecvMode: (recvMode: 'text' | 'binary') => {
     set({ recvMode })
+    saveInfo(store)
+  },
+  setAutoSend(autoSend) {
+    set({ autoSend })
+    saveInfo(store)
+    autoSend ? enableAutoSend() : abortAutoSend()
+  },
+  setAutoSendInterval(autoSendInterval) {
+    set({ autoSendInterval })
     saveInfo(store)
   },
 }))
