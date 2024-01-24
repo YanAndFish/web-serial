@@ -34,7 +34,7 @@ export const Editor: FC<EditorProps> = ({ className, style, readonly, children, 
         />
       </Inset>
       <Inset className="relative bg-$accent-a2 h-54px flex" p="0" side="bottom">
-        <Flex className="px-3 pt-3">
+        <Flex className="px-3 pt-3 w-full">
           {children}
         </Flex>
       </Inset>

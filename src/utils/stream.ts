@@ -2,9 +2,18 @@ export interface TransferOption {
   mode: 'text' | 'binary'
 }
 
+export async function reqIdle(timeout?: number) {
+  return new Promise(resolve => requestIdleCallback(resolve, { timeout }))
+}
+
 function encodeHexString(hexStr: string): Uint8Array {
   try {
-    return Uint8Array.from((hexStr.split(' ').map(hex => Number.parseInt(hex, 16))))
+    return Uint8Array.from((hexStr.split(/\s+/).filter(e => e.length).map((hex) => {
+      const num = Number.parseInt(hex, 16)
+      if (Number.isNaN(num))
+        throw new Error('Invalid hex string')
+      return num
+    })))
   }
   catch (err) {
     console.error(err)

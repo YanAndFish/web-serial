@@ -23,7 +23,7 @@ export interface SerialStore {
   putReceiveCount: (receiveCount: number) => void
   clearReceiveCount: () => void
   recvData?: string
-  // putRecvData: (recvData: string) => void
+  putRecvData: (recvData: string) => void
   clearRecvData: () => void
   sendData?: string
   setSendData: (sendData: string | undefined) => void
@@ -83,8 +83,8 @@ function saveCount(store: () => SerialStore) {
 }
 
 function saveLog(store: () => SerialStore) {
-  const { sendData, receiveCount } = store()
-  localStorage.setItem(serialLogKey, JSON.stringify({ sendData, receiveCount }))
+  const { sendData, recvData } = store()
+  localStorage.setItem(serialLogKey, JSON.stringify({ sendData, recvData }))
 }
 
 export const useSerialStore = create<SerialStore>((set, store) => ({
@@ -145,7 +145,12 @@ export const useSerialStore = create<SerialStore>((set, store) => ({
     }
   },
   putRecvData: (recvData: string) => {
-    set(v => ({ recvData: v.recvData + recvData }))
+    set((v) => {
+      if (v.recvMode === 'binary' && v.recvData && !v.recvData.endsWith(' '))
+        v.recvData = `${v.recvData} `
+
+      return { recvData: v.recvData + recvData }
+    })
     saveLog(store)
   },
   clearRecvData: () => {

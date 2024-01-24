@@ -1,12 +1,13 @@
 import { create } from 'zustand'
 import { useSerialStore } from './serial'
-import { createDataTransferStream } from '@/utils/stream'
+import { createDataTransferStream, reqIdle } from '@/utils/stream'
 
 export interface PortStore {
   port?: SerialPort
   connected: boolean
   writer?: WritableStreamDefaultWriter<string>
   pipeClosed?: Promise<unknown>
+  reader?: ReadableStreamDefaultReader<Uint8Array>
 }
 
 export const usePortStore = create<PortStore>(() => ({
@@ -18,10 +19,11 @@ export const usePortStore = create<PortStore>(() => ({
 export async function closePort(port?: SerialPort) {
   try {
     port = port ?? usePortStore.getState().port
-    const { writer, pipeClosed } = usePortStore.getState()
+    const { writer, pipeClosed, reader } = usePortStore.getState()
     usePortStore.setState({ writer: undefined, pipeClosed: undefined })
     await writer?.close()
     await pipeClosed
+    await reader?.cancel()
 
     await port?.close()
     usePortStore.setState({ connected: false })
@@ -53,10 +55,15 @@ export async function openPort() {
   try {
     const port = usePortStore.getState().port
     const { resolveSerialInfo } = useSerialStore.getState()
-    await port?.open(resolveSerialInfo())
+
+    if (!port)
+      throw new Error('Port is not selected')
+
+    await port.open(resolveSerialInfo())
     usePortStore.setState({ connected: true })
 
     await openWriteStream()
+    createReader(port)
   }
   catch (err) {
     if (err instanceof DOMException && err.name === 'InvalidStateError') {
@@ -99,4 +106,49 @@ export async function writeData() {
   const { writer } = usePortStore.getState()
   const data = useSerialStore.getState().sendData
   await writer?.write(data)
+}
+
+async function createReader(port: SerialPort) {
+  if (!port.readable)
+    throw new Error('Port is not readable')
+
+  while (port.readable) {
+    if (port.readable.locked)
+      break
+
+    const reader = port.readable.getReader()
+    usePortStore.setState({ reader })
+
+    const { putReceiveCount } = useSerialStore.getState()
+
+    try {
+      while (true) {
+        await reqIdle()
+        const { value, done } = await reader.read()
+
+        if (done) {
+          reader.releaseLock()
+          return
+        }
+
+        putReceiveCount(value.length)
+
+        const mode = useSerialStore.getState().recvMode
+
+        if (mode === 'text') {
+          const decode = new TextDecoder()
+          const text = decode.decode(value)
+          useSerialStore.getState().putRecvData(text)
+        }
+        else {
+          const hex = Array.from(value).map(v => v.toString(16).padStart(2, '0').toUpperCase()).join(' ')
+          useSerialStore.getState().putRecvData(hex)
+        }
+      }
+    }
+    catch (err) {
+      console.error(err)
+      reader.releaseLock()
+    }
+  }
 }
