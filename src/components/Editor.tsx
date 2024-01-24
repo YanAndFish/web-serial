@@ -5,14 +5,31 @@ export interface EditorProps extends Props {
   readonly?: boolean
   value?: string
   onValueChange?: (value: string | undefined) => void
+  autoScollOnBottom?: boolean
+  scrollBeyondLastLine?: boolean
 }
 
-export const Editor: FC<EditorProps> = ({ className, style, readonly, children, value, onValueChange }) => {
+export const Editor: FC<EditorProps> = ({ className, style, readonly, children, value, onValueChange, autoScollOnBottom, scrollBeyondLastLine }) => {
   const editor = useRef<monaco.editor.IStandaloneCodeEditor>()
+  const autoScroll = useRef<boolean>(true)
 
   function handleEditorDidMount(_editor: monaco.editor.IStandaloneCodeEditor) {
     editor.current = _editor
+    _editor.onDidScrollChange((e) => {
+      if (!e.scrollTopChanged)
+        return
+
+      autoScroll.current = e.scrollHeight === e.scrollTop + (_editor.getDomNode()?.clientHeight ?? 0)
+    })
   }
+
+  useEffect(() => {
+    if (!editor.current)
+      return
+
+    if (autoScollOnBottom && readonly && autoScroll.current)
+      editor.current.revealLine(editor.current.getModel()?.getLineCount() ?? 0)
+  }, [value])
 
   return (
     <Card className={className} style={style}>
@@ -27,6 +44,7 @@ export const Editor: FC<EditorProps> = ({ className, style, readonly, children, 
             cursorBlinking: 'smooth',
             tabSize: 2,
             readOnly: readonly,
+            scrollBeyondLastLine,
             fontFamily: 'CascadiaCode,var(--default-font-family)',
           }}
           onChange={onValueChange}

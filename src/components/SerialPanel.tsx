@@ -82,7 +82,7 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
       </Inset>
       <Flex className="h-full h-full grow pl-3" direction="column">
         <EditorHeader className="mb-2 " countType="receive" title="数据接收" />
-        <Editor readonly className="grow-2" value={recvData}>
+        <Editor readonly autoScollOnBottom scrollBeyondLastLine={false} className="grow-2" value={recvData}>
           <div className="grow" />
           <Button variant="soft" onClick={clearRecvData}>清空</Button>
         </Editor>
