@@ -55,16 +55,16 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
               <SerialSelect />
             </Field>
             <Field label="波特率">
-              <BaudRateSelect className="w-110px" disabled={connected} value={baudRate} onValueChange={setBaudRate} />
+              <BaudRateSelect className="w-140px" disabled={connected} value={baudRate} onValueChange={setBaudRate} />
             </Field>
             <Field label="校验位">
-              <ParityTypeSelect className="w-110px" disabled={connected} value={parity} onValueChange={setParity} />
+              <ParityTypeSelect className="w-140px" disabled={connected} value={parity} onValueChange={setParity} />
             </Field>
             <Field label="停止位">
-              <StopBitsSelect className="w-110px" disabled={connected} value={stopBits} onValueChange={setStopBits} />
+              <StopBitsSelect className="w-140px" disabled={connected} value={stopBits} onValueChange={setStopBits} />
             </Field>
             <Field label="数据位">
-              <DataBitsSelect className="w-110px" disabled={connected} value={dataBits} onValueChange={setDataBits} />
+              <DataBitsSelect className="w-140px" disabled={connected} value={dataBits} onValueChange={setDataBits} />
             </Field>
           </Card>
           <Card className="mt-3">

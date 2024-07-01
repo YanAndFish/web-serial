@@ -18,7 +18,7 @@ export const EditorHeader: FC<EditorHeaderProps> = ({ title, countType, classNam
       <Button color="violet" size="1" variant="soft" onClick={handleClear}>
         <RText>{count}</RText>
         <Separator className="mx-1" color="violet" orientation="vertical" size="1" />
-        <RText>清除</RText>
+        <RText>重置</RText>
       </Button>
     </Flex>
   )
