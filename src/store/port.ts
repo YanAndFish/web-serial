@@ -23,7 +23,17 @@ export async function closePort(port?: SerialPort) {
     usePortStore.setState({ writer: undefined, pipeClosed: undefined })
     await writer?.close()
     await pipeClosed
-    await reader?.cancel()
+    try {
+      await reader?.cancel()
+    }
+    catch (err) {
+      if (err instanceof TypeError && err.message.includes('has been released')) {
+        // ignore
+      }
+      else {
+        throw err
+      }
+    }
 
     await port?.close()
     usePortStore.setState({ connected: false })
