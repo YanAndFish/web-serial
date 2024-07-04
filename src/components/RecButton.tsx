@@ -4,7 +4,7 @@ import { startRec, stopRec, usePortStore } from '@/store/port'
 import { isRecSupport } from '@/utils/rec'
 
 export const RecButton: FC = () => {
-  const { connected, rec } = usePortStore()
+  const { rec } = usePortStore()
   const [loading, setLoading] = useState(false)
 
   const handleSwitchRec = useCallback(async () => {
@@ -30,7 +30,7 @@ export const RecButton: FC = () => {
   const support = useMemo(isRecSupport, [])
 
   return (
-    <Button color="red" size="1" variant="soft" disabled={!support} onClick={handleSwitchRec}>
+    <Button color="red" disabled={!support} size="1" variant="soft" onClick={handleSwitchRec}>
       {icon}
       <RText>数据流录制</RText>
     </Button>

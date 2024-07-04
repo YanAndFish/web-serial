@@ -18,7 +18,7 @@ export const EditorHeader: FC<EditorHeaderProps> = ({ title, countType, classNam
   }))
 
   return (
-    <Flex className={`items-center ${className}`} style={style} gap="2">
+    <Flex className={`items-center ${className}`} gap="2" style={style}>
       <Heading className="grow" size="3">{title}</Heading>
       {action}
       <Button color="violet" size="1" variant="soft" onClick={handleClear}>

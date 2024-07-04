@@ -100,10 +100,10 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
       </Inset>
       <Flex className="h-full h-full grow pl-3" direction="column">
         <EditorHeader
+          action={<RecButton />}
           className="mb-2"
           countType="receive"
           title="数据接收"
-          action={<RecButton />}
         />
         <Editor
           autoScollOnBottom
@@ -123,7 +123,7 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
           countType="send"
           title="数据发送"
           action={
-            <Button color="cyan" size="1" variant="soft" disabled={rec || true /** todo */}>
+            <Button color="cyan" disabled={rec || true /** todo */} size="1" variant="soft">
               <CounterClockwiseClockIcon />
               <RText>数据流重现</RText>
             </Button>
