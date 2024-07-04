@@ -24,7 +24,7 @@ export const usePortStore = create<PortStore>(set => ({
   },
 }))
 
-export async function closePort(port?: SerialPort) {
+export async function closePort(port?: SerialPort, removeFileHandler?: boolean) {
   try {
     port = port ?? usePortStore.getState().port
     const { writer, pipeClosed, reader, recWorker } = usePortStore.getState()
@@ -32,7 +32,7 @@ export async function closePort(port?: SerialPort) {
     await writer?.close()
     await pipeClosed
     try {
-      await recWorker.cancel()
+      await recWorker.cancel(removeFileHandler)
       await reader?.cancel()
     }
     catch (err) {
@@ -103,7 +103,7 @@ export async function togglePort() {
     await openPort()
 }
 
-export async function requestPort() {
+export async function requestPort(fileHandler?: FileSystemFileHandle) {
   try {
     await closePort()
     const port = await navigator.serial.requestPort()
@@ -113,7 +113,7 @@ export async function requestPort() {
     })
 
     usePortStore.setState({ port })
-    await openPort()
+    await openPort(fileHandler)
   }
   catch (err) {
     if (err instanceof DOMException && err.name === 'NotFoundError')
@@ -141,8 +141,6 @@ async function createReader(port: SerialPort, fileHandler?: FileSystemFileHandle
     let stream = port.readable
 
     if (rec) {
-      if (!fileHandler)
-        throw new Error('File handler is not provided')
       const [_stream, recStream] = stream.tee()
       stream = _stream
       await recWorker.startRec(recStream, fileHandler)
@@ -208,22 +206,33 @@ export async function abortAutoSend() {
   clearInterval(timer)
 }
 
+export function requestFileHandler() {
+  return showSaveFilePicker({
+    suggestedName: `serial-${Date.now()}.serial`,
+    types: [
+      {
+        description: 'Serial REC data',
+        accept: {
+          'text/plain': ['.serial'],
+        },
+      },
+    ],
+  })
+}
+
 export async function startRec() {
   try {
     usePortStore.setState({ rec: true })
-    const fileHandler = await showSaveFilePicker({
-      suggestedName: `serial-${Date.now()}.serial`,
-      types: [
-        {
-          description: 'Serial REC data',
-          accept: {
-            'text/plain': ['.serial'],
-          },
-        },
-      ],
-    })
-    await closePort()
-    await openPort(fileHandler)
+    const { port } = usePortStore.getState()
+    const fileHandler = await requestFileHandler()
+
+    if (port) {
+      await closePort()
+      await openPort(fileHandler)
+    }
+    else {
+      await requestPort(fileHandler)
+    }
   }
   catch (err) {
     usePortStore.setState({ rec: false })
@@ -236,5 +245,5 @@ export async function startRec() {
 
 export async function stopRec() {
   usePortStore.setState({ rec: false })
-  await closePort()
+  await closePort(undefined, true)
 }

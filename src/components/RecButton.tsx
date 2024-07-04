@@ -30,7 +30,7 @@ export const RecButton: FC = () => {
   const support = useMemo(isRecSupport, [])
 
   return (
-    <Button color="red" size="1" variant="soft" disabled={!connected && support} onClick={handleSwitchRec}>
+    <Button color="red" size="1" variant="soft" disabled={!support} onClick={handleSwitchRec}>
       {icon}
       <RText>数据流录制</RText>
     </Button>

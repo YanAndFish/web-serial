@@ -50,14 +50,14 @@ comlink.expose({
   startRec: async (stream, handler) => {
     try {
       readerStream = stream
-      fileHandler = handler
+      fileHandler = handler ?? fileHandler
       await runRec()
     }
     catch (err) {
       return Promise.reject(err)
     }
   },
-  cancel: async () => {
+  stopRec: async () => {
     try {
       abortSignal?.abort()
       await pipeClosed
@@ -69,10 +69,16 @@ comlink.expose({
     }
     finally {
       readerStream = undefined
-      fileHandler = undefined
       pipeClosed = undefined
       fileStream = undefined
       abortSignal = undefined
     }
+  },
+  removeFileHandler: async () => {
+    if (fileStream?.locked)
+      return Promise.reject(new Error('file handler is used'))
+
+    fileHandler = undefined
+    fileStream = undefined
   },
 } satisfies RecWorkerInterface)

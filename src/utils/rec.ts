@@ -2,8 +2,9 @@ import { type Remote, transfer, wrap as wrapWorker } from 'comlink'
 import _RecWorker from '@/worker/rec-worker?worker'
 
 export interface RecWorkerInterface {
-  startRec(serialReadStream: ReadableStream<Uint8Array>, fileHandler: FileSystemFileHandle): Promise<void>
-  cancel(): Promise<void>
+  startRec(serialReadStream: ReadableStream<Uint8Array>, fileHandler?: FileSystemFileHandle): Promise<void>
+  stopRec(): Promise<void>
+  removeFileHandler(): Promise<void>
 }
 
 export class RecWorker {
@@ -13,11 +14,13 @@ export class RecWorker {
     this.#worker = wrapWorker<RecWorkerInterface>(new _RecWorker())
   }
 
-  cancel() {
-    return this.#worker.cancel()
+  async cancel(removeFileHandler = false) {
+    await this.#worker.stopRec()
+    if (removeFileHandler)
+      await this.#worker.removeFileHandler()
   }
 
-  async startRec(stream: ReadableStream<Uint8Array>, fileHandler: FileSystemFileHandle) {
+  async startRec(stream: ReadableStream<Uint8Array>, fileHandler?: FileSystemFileHandle) {
     await this.#worker.startRec(transfer(stream, [stream]), fileHandler)
   }
 }
