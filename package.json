@@ -18,6 +18,7 @@
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",
     "@radix-ui/themes": "^2.0.3",
+    "comlink": "^4.4.1",
     "monaco-editor": "^0.45.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -30,6 +31,7 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@types/w3c-web-serial": "^1.0.6",
+    "@types/wicg-file-system-access": "^2023.10.5",
     "@unocss/reset": "^0.58.9",
     "@vitejs/plugin-react-swc": "^3.7.0",
     "@yafh/eslint-config-jsx": "^0.6.1",

@@ -1,4 +1,6 @@
 import type { ChangeEvent } from 'react'
+
+import { CounterClockwiseClockIcon } from '@radix-ui/react-icons'
 import { SerialSelect } from './SerialSelect'
 import { Editor } from './Editor'
 import { BaudRateSelect } from './BaudRateSelect'
@@ -8,6 +10,7 @@ import { StopBitsSelect } from './StopBitsSelect'
 import { ParityTypeSelect } from './ParityTypeSelect'
 import { EditorHeader } from './EditorHeader'
 import { DataModeRadio } from './DataModeRadio'
+import { RecButton } from './RecButton'
 import { useSerialStore } from '@/store/serial'
 import { usePortStore, writeData } from '@/store/port'
 
@@ -26,7 +29,7 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
     autoSendInterval, setAutoSendInterval,
   } = useSerialStore()
 
-  const { connected } = usePortStore()
+  const { connected, rec } = usePortStore()
 
   const { sendData, setSendData } = useSerialStore(s => ({ sendData: s.sendData, setSendData: s.setSendData }))
   const { recvData, clearRecvData } = useSerialStore(s => ({ recvData: s.recvData, clearRecvData: s.clearRecvData }))
@@ -81,14 +84,27 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
             <Field label="定时发送" />
             <Flex align="center">
               <Checkbox checked={autoSend} className="mr-2" size="3" onCheckedChange={setAutoSend} />
-              <TextField.Input min={0} size="1" type="number" value={autoSendInterval} onChange={handleUpdateAutoSendInterval} />
-              <RText className="ml-2" size="2">毫秒</RText>
+              <TextField.Input
+                min={0}
+                size="1"
+                type="number"
+                value={autoSendInterval}
+                onChange={handleUpdateAutoSendInterval}
+              />
+              <RText className="ml-2" size="2">
+                毫秒
+              </RText>
             </Flex>
           </Card>
         </ScrollArea>
       </Inset>
       <Flex className="h-full h-full grow pl-3" direction="column">
-        <EditorHeader className="mb-2 " countType="receive" title="数据接收" />
+        <EditorHeader
+          className="mb-2"
+          countType="receive"
+          title="数据接收"
+          action={<RecButton />}
+        />
         <Editor
           autoScollOnBottom
           readonly
@@ -98,18 +114,29 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
           value={recvData}
         >
           <div className="grow" />
-          <Button variant="soft" onClick={clearRecvData}>清空</Button>
+          <Button variant="soft" onClick={clearRecvData}>
+            清空
+          </Button>
         </Editor>
-        <EditorHeader className="mt-3" countType="send" title="数据发送" />
-        <Editor
-          className="mt-3 grow"
-          language={`serial-${sendMode}`}
-          value={sendData}
-          onValueChange={setSendData}
-        >
-          <Button disabled={!connected} onClick={writeData}>发送 Meta + Enter</Button>
+        <EditorHeader
+          className="mt-3"
+          countType="send"
+          title="数据发送"
+          action={
+            <Button color="cyan" size="1" variant="soft" disabled={rec || true /** todo */}>
+              <CounterClockwiseClockIcon />
+              <RText>数据流重现</RText>
+            </Button>
+        }
+        />
+        <Editor className="mt-3 grow" language={`serial-${sendMode}`} value={sendData} onValueChange={setSendData}>
+          <Button disabled={!connected} onClick={writeData}>
+            发送 Meta + Enter
+          </Button>
           <div className="grow" />
-          <Button variant="soft" onClick={() => setSendData('')}>清空</Button>
+          <Button variant="soft" onClick={() => setSendData('')}>
+            清空
+          </Button>
         </Editor>
       </Flex>
     </Flex>

@@ -1,4 +1,5 @@
-import { ReloadIcon, UpdateIcon } from '@radix-ui/react-icons'
+import { LinkBreak2Icon, UpdateIcon } from '@radix-ui/react-icons'
+import style from './SerialSelect.module.css'
 import { Dialog } from '@/components/Dialog'
 import { useDialog } from '@/hooks/use-dialog'
 import { requestPort, togglePort, usePortStore } from '@/store/port'
@@ -67,7 +68,7 @@ export const SerialSelect: FC<SerialSelectProps> = () => {
               variant="soft"
               onClick={loading ? undefined : handleTogglePort}
             >
-              {loading ? <UpdateIcon /> : buttonText}
+              {loading ? <UpdateIcon className={style['spin-icon-load']} /> : buttonText}
             </Button>
             )
           : (
@@ -85,7 +86,7 @@ export const SerialSelect: FC<SerialSelectProps> = () => {
         !!port
         && (
           <Button className="ml-2" disabled={connected} variant="soft" onClick={handleRequestPort}>
-            <ReloadIcon />
+            <LinkBreak2Icon />
           </Button>
         )
       }

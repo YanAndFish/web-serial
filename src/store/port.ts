@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { useSerialStore } from './serial'
 import { createDataTransferStream, reqIdle } from '@/utils/stream'
+import { RecWorker } from '@/utils/rec'
 
 export interface PortStore {
   port?: SerialPort
@@ -8,22 +9,30 @@ export interface PortStore {
   writer?: WritableStreamDefaultWriter<string>
   pipeClosed?: Promise<unknown>
   reader?: ReadableStreamDefaultReader<Uint8Array>
+  rec?: boolean
+  setREC(rec: boolean): void
+  readonly recWorker: RecWorker
 }
 
-export const usePortStore = create<PortStore>(() => ({
+export const usePortStore = create<PortStore>(set => ({
   port: undefined,
   connected: false,
   writer: undefined,
+  recWorker: new RecWorker(),
+  setREC: (rec: boolean) => {
+    set({ rec })
+  },
 }))
 
 export async function closePort(port?: SerialPort) {
   try {
     port = port ?? usePortStore.getState().port
-    const { writer, pipeClosed, reader } = usePortStore.getState()
+    const { writer, pipeClosed, reader, recWorker } = usePortStore.getState()
     usePortStore.setState({ writer: undefined, pipeClosed: undefined })
     await writer?.close()
     await pipeClosed
     try {
+      await recWorker.cancel()
       await reader?.cancel()
     }
     catch (err) {
@@ -61,7 +70,7 @@ async function openWriteStream() {
   }
 }
 
-export async function openPort() {
+export async function openPort(fileHandler?: FileSystemFileHandle) {
   try {
     const port = usePortStore.getState().port
     const { resolveSerialInfo } = useSerialStore.getState()
@@ -73,7 +82,7 @@ export async function openPort() {
     usePortStore.setState({ connected: true })
 
     await openWriteStream()
-    createReader(port) // 这里不会使用await，因为createReader会一直运行
+    createReader(port, fileHandler) // 这里不会使用await，因为createReader会一直运行
     enableAutoSend()
   }
   catch (err) {
@@ -119,7 +128,7 @@ export async function writeData() {
   await writer?.write(JSON.parse(`"${data}"`)) // 让JavaScript把字符串当做表达式计算，使得转义字符生效
 }
 
-async function createReader(port: SerialPort) {
+async function createReader(port: SerialPort, fileHandler?: FileSystemFileHandle) {
   if (!port.readable)
     throw new Error('Port is not readable')
 
@@ -127,10 +136,20 @@ async function createReader(port: SerialPort) {
     if (port.readable.locked)
       break
 
-    const reader = port.readable.getReader()
-    usePortStore.setState({ reader })
-
     const { putReceiveCount } = useSerialStore.getState()
+    const { recWorker, rec } = usePortStore.getState()
+    let stream = port.readable
+
+    if (rec) {
+      if (!fileHandler)
+        throw new Error('File handler is not provided')
+      const [_stream, recStream] = stream.tee()
+      stream = _stream
+      await recWorker.startRec(recStream, fileHandler)
+    }
+
+    const reader = stream.getReader()
+    usePortStore.setState({ reader })
 
     try {
       while (true) {
@@ -187,4 +206,35 @@ export async function enableAutoSend() {
 
 export async function abortAutoSend() {
   clearInterval(timer)
+}
+
+export async function startRec() {
+  try {
+    usePortStore.setState({ rec: true })
+    const fileHandler = await showSaveFilePicker({
+      suggestedName: `serial-${Date.now()}.serial`,
+      types: [
+        {
+          description: 'Serial REC data',
+          accept: {
+            'text/plain': ['.serial'],
+          },
+        },
+      ],
+    })
+    await closePort()
+    await openPort(fileHandler)
+  }
+  catch (err) {
+    usePortStore.setState({ rec: false })
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      //
+    }
+    else { throw err }
+  }
+}
+
+export async function stopRec() {
+  usePortStore.setState({ rec: false })
+  await closePort()
 }
