@@ -5,6 +5,8 @@ export interface RecWorkerInterface {
   startRec(serialReadStream: ReadableStream<Uint8Array>, fileHandler?: FileSystemFileHandle): Promise<void>
   stopRec(): Promise<void>
   removeFileHandler(): Promise<void>
+  replayData(file: File): Promise<void>
+  abortReplay(): Promise<void>
 }
 
 export class RecWorker {

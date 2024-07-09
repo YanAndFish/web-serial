@@ -81,6 +81,7 @@ declare global {
   const PopoverRoot: typeof import('@radix-ui/themes')['PopoverRoot']
   const PopoverTrigger: typeof import('@radix-ui/themes')['PopoverTrigger']
   const Portal: typeof import('@radix-ui/themes')['Portal']
+  const Progress: typeof import('@radix-ui/themes')['Progress']
   const Quote: typeof import('@radix-ui/themes')['Quote']
   const RSelect: typeof import('@radix-ui/themes')['Select']
   const RText: typeof import('@radix-ui/themes')['Text']

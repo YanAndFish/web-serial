@@ -1,5 +1,7 @@
 import type * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import MonacoEditor from '@monaco-editor/react'
+import { Range } from 'monaco-editor'
+import { resolvePromise } from '@/utils/promise'
 
 export interface EditorProps extends Props {
   readonly?: boolean
@@ -10,9 +12,16 @@ export interface EditorProps extends Props {
   language?: string
 }
 
-export const Editor: FC<EditorProps> = ({ className, style, readonly, children, value, onValueChange, autoScollOnBottom, scrollBeyondLastLine, language }) => {
+export interface EditorInstance {
+  putContent: (content: string) => Promise<void>
+  clearContent: () => Promise<void>
+  setContnet: (content: string) => Promise<void>
+}
+
+export const Editor = forwardRef<EditorInstance, EditorProps>(({ className, style, readonly, children, value, onValueChange, autoScollOnBottom, scrollBeyondLastLine, language }, ref) => {
   const editor = useRef<monaco.editor.IStandaloneCodeEditor>()
   const autoScroll = useRef<boolean>(true)
+  const ready = useRef(resolvePromise<void>())
 
   function handleEditorDidMount(_editor: monaco.editor.IStandaloneCodeEditor) {
     editor.current = _editor
@@ -22,6 +31,9 @@ export const Editor: FC<EditorProps> = ({ className, style, readonly, children, 
 
       autoScroll.current = e.scrollHeight === e.scrollTop + (_editor.getDomNode()?.clientHeight ?? 0)
     })
+
+    // resolve ready promise
+    ready.current[1]()
   }
 
   useEffect(() => {
@@ -31,6 +43,52 @@ export const Editor: FC<EditorProps> = ({ className, style, readonly, children, 
     if (autoScollOnBottom && readonly && autoScroll.current)
       editor.current.revealLine(editor.current.getModel()?.getLineCount() ?? 0)
   }, [value])
+
+  useImperativeHandle(ref, () => ({
+    setContnet: async (content: string) => {
+      await ready.current[0]
+      if (!editor.current)
+        return
+
+      const model = editor.current.getModel()
+
+      if (!model)
+        return
+
+      model.setValue(content)
+    },
+    putContent: async (content: string) => {
+      await ready.current[0]
+      if (!editor.current)
+        return
+
+      const model = editor.current.getModel()
+
+      if (!model)
+        return
+
+      const endPosition = model.getFullModelRange().getEndPosition()
+      // 插入内容到当前内容最后
+      model.pushEditOperations([], [{
+        range: new Range(endPosition.lineNumber, endPosition.column, endPosition.lineNumber, endPosition.column),
+        text: content,
+        forceMoveMarkers: true,
+      }], () => null)
+    },
+    clearContent: async () => {
+      await ready.current[0]
+
+      if (!editor.current)
+        return
+
+      const model = editor.current.getModel()
+
+      if (!model)
+        return
+
+      model.setValue('')
+    },
+  }), [])
 
   return (
     <Card className={className} style={style}>
@@ -60,4 +118,4 @@ export const Editor: FC<EditorProps> = ({ className, style, readonly, children, 
       </Inset>
     </Card>
   )
-}
+})

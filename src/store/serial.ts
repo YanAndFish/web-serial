@@ -38,6 +38,8 @@ export interface SerialStore {
   setAutoSend: (autoSend: boolean) => void
   autoSendInterval?: number
   setAutoSendInterval: (autoSendInterval: number) => void
+  recvHook?: (recvData: string) => void
+  setRecvHook: (hook: ((recvData: string) => void) | undefined) => () => void
 }
 
 function createInitialState() {
@@ -154,8 +156,9 @@ export const useSerialStore = create<SerialStore>((set, store) => ({
   putRecvData: (recvData: string) => {
     set((v) => {
       if (v.recvMode === 'binary' && v.recvData && !v.recvData.endsWith(' '))
-        v.recvData = `${v.recvData} `
+        recvData = ` ${recvData}`
 
+      v.recvHook?.(recvData)
       return { recvData: v.recvData + recvData }
     })
     saveLog(store)
@@ -188,5 +191,9 @@ export const useSerialStore = create<SerialStore>((set, store) => ({
   setAutoSendInterval(autoSendInterval) {
     set({ autoSendInterval })
     saveInfo(store)
+  },
+  setRecvHook(hook) {
+    set({ recvHook: hook })
+    return () => set({ recvHook: undefined })
   },
 }))

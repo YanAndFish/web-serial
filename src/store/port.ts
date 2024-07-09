@@ -12,6 +12,8 @@ export interface PortStore {
   rec?: boolean
   setREC(rec: boolean): void
   readonly recWorker: RecWorker
+  replaying?: boolean
+  setReplaying(replaying: boolean): void
 }
 
 export const usePortStore = create<PortStore>(set => ({
@@ -19,9 +21,9 @@ export const usePortStore = create<PortStore>(set => ({
   connected: false,
   writer: undefined,
   recWorker: new RecWorker(),
-  setREC: (rec: boolean) => {
-    set({ rec })
-  },
+  setREC: (rec: boolean) => set({ rec }),
+  replaying: false,
+  setReplaying: (replaying: boolean) => set({ replaying }),
 }))
 
 export async function closePort(port?: SerialPort, removeFileHandler?: boolean) {
@@ -125,7 +127,7 @@ export async function requestPort(fileHandler?: FileSystemFileHandle) {
 export async function writeData() {
   const { writer } = usePortStore.getState()
   const data = useSerialStore.getState().sendData
-  await writer?.write(JSON.parse(`"${data}"`)) // 让JavaScript把字符串当做表达式计算，使得转义字符生效
+  await writer?.write(JSON.parse(`[${data?.split('\n').map(e => `"${e}"`).join(',')}]`).join('\n')) // 让JavaScript把字符串当做表达式计算，使得转义字符生效
 }
 
 async function createReader(port: SerialPort, fileHandler?: FileSystemFileHandle) {
@@ -246,4 +248,34 @@ export async function startRec() {
 export async function stopRec() {
   usePortStore.setState({ rec: false })
   await closePort(undefined, true)
+}
+
+export function loadSerialData() {
+  return new Promise<File | undefined>((resolve) => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.serial'
+    input.onchange = async () => {
+      resolve(input.files?.[0])
+      input.remove()
+    }
+    input.click()
+  })
+}
+
+export async function replaySerialData(file: File) {
+  try {
+    useSerialStore.getState().setSendMode('binary')
+    const content = (await file.text())
+      .replace(/(\d+ \| )/g, '')
+      .replace(/\r?\n/, ' ')
+
+    const { writer, connected } = usePortStore.getState()
+
+    if (connected && writer)
+      await writer.write(content)
+  }
+  catch (e) {
+    return Promise.reject(e)
+  }
 }

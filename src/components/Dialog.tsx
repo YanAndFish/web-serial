@@ -1,6 +1,7 @@
+import React from 'react'
 import type { ShowDialogOptions } from '@/hooks/use-dialog'
 
-export interface AlertDialogProps {
+export interface AlertDialogProps extends Props {
 
 }
 
@@ -8,10 +9,10 @@ export interface AlertDialogRef {
   showDialog: (option: ShowDialogOptions) => void
 }
 
-export const Dialog = forwardRef<AlertDialogRef>((_, ref) => {
+export const Dialog = forwardRef<AlertDialogRef, AlertDialogProps>(({ children }, ref) => {
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState('提示')
-  const [description, setDesciption] = useState('Are you ok?')
+  const [description, setDesciption] = useState<React.ReactNode>()
   const handleAction = useRef<React.MouseEventHandler<HTMLButtonElement>>(() => {})
   const handleCancel = useRef<React.MouseEventHandler<HTMLButtonElement>>(() => {})
   const [actionText, setActionText] = useState<string>()
@@ -35,7 +36,7 @@ export const Dialog = forwardRef<AlertDialogRef>((_, ref) => {
       <AlertDialog.Content style={{ maxWidth: 450 }}>
         <AlertDialog.Title>{title}</AlertDialog.Title>
         <AlertDialog.Description size="2">
-          {description}
+          {description ?? children}
         </AlertDialog.Description>
         <Flex gap="3" justify="end" mt="4">
           {

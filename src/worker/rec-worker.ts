@@ -81,4 +81,10 @@ comlink.expose({
     fileHandler = undefined
     fileStream = undefined
   },
+  replayData: async (file) => {
+
+  },
+  abortReplay: async () => {
+
+  },
 } satisfies RecWorkerInterface)

@@ -5,22 +5,9 @@ export interface DataModeRadioProps {
 
 export const DataModeRadio: React.FC<DataModeRadioProps> = ({ value, onValueChange }) => {
   return (
-    <RadioGroup.Root className="flex" value={value} onValueChange={onValueChange}>
-      <RText as="label" size="2">
-        <Flex gap="2">
-          <RadioGroup.Item value="text" />
-          {' '}
-          文本
-        </Flex>
-      </RText>
-      <RText as="label" className="ml-3" size="2">
-        <Flex gap="2">
-          <RadioGroup.Item value="binary" />
-          {' '}
-          Hex
-        </Flex>
-      </RText>
-
+    <RadioGroup.Root size="1" className="flex flex-row" value={value} onValueChange={onValueChange}>
+      <RadioGroup.Item value="text">文本</RadioGroup.Item>
+      <RadioGroup.Item value="binary">Hex</RadioGroup.Item>
     </RadioGroup.Root>
   )
 }

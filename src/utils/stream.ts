@@ -40,3 +40,30 @@ export function createDataTransferStream(configGetter: () => TransferOption, cou
     },
   })
 }
+
+export class SerialDataTransferStream extends TransformStream<string, [number, number[]]> {
+  #lastTime: number | undefined
+
+  constructor() {
+    super({
+      transform: (chunk, controller) => {
+        const [time, data] = chunk.split('|')
+
+        const offset = Number(time) - (this.#lastTime ?? Number(time))
+        this.#lastTime = Number(time)
+
+        if (data)
+          controller.enqueue([offset, data.split(/\s+/).filter(Boolean).map(e => Number.parseInt(e, 16))])
+      },
+    })
+  }
+}
+
+export function createArrayReaderableStream<T>(array: T[]): ReadableStream<T> {
+  return new ReadableStream<T>({
+    start(controller) {
+      array.forEach(controller.enqueue.bind(controller))
+      controller.close()
+    },
+  })
+}

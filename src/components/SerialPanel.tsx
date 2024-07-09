@@ -1,7 +1,7 @@
 import type { ChangeEvent } from 'react'
 
-import { CounterClockwiseClockIcon } from '@radix-ui/react-icons'
 import { SerialSelect } from './SerialSelect'
+import type { EditorInstance } from './Editor'
 import { Editor } from './Editor'
 import { BaudRateSelect } from './BaudRateSelect'
 import { Field } from './Field'
@@ -11,8 +11,10 @@ import { ParityTypeSelect } from './ParityTypeSelect'
 import { EditorHeader } from './EditorHeader'
 import { DataModeRadio } from './DataModeRadio'
 import { RecButton } from './RecButton'
+import { ReplayButton } from './ReplayButton'
 import { useSerialStore } from '@/store/serial'
 import { usePortStore, writeData } from '@/store/port'
+import { reqIdle } from '@/utils/stream'
 
 export interface SerialPanelProps {
 }
@@ -29,10 +31,12 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
     autoSendInterval, setAutoSendInterval,
   } = useSerialStore()
 
-  const { connected, rec } = usePortStore()
-
+  const { connected, replaying } = usePortStore()
   const { sendData, setSendData } = useSerialStore(s => ({ sendData: s.sendData, setSendData: s.setSendData }))
   const { recvData, clearRecvData } = useSerialStore(s => ({ recvData: s.recvData, clearRecvData: s.clearRecvData }))
+  const setRecvHook = useSerialStore(s => s.setRecvHook)
+
+  const recvEditorRef = useRef<EditorInstance>(null)
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -44,47 +48,63 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
     return () => window.removeEventListener('keydown', handler)
   }, [connected])
 
+  useEffect(() => {
+    if (recvEditorRef.current && recvData)
+      recvEditorRef.current.setContnet(recvData)
+  }, [recvEditorRef])
+
+  useEffect(() => {
+    return setRecvHook((recvData) => {
+      recvEditorRef.current?.putContent(recvData)
+    })
+  }, [setRecvHook, recvEditorRef])
+
   const handleUpdateAutoSendInterval = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setAutoSendInterval(+e.currentTarget.value)
   }, [])
+
+  const handleClearRecv = useCallback(() => {
+    clearRecvData()
+    recvEditorRef.current?.clearContent()
+  }, [clearRecvData, recvEditorRef])
 
   return (
     <Flex className="w-full h-full">
       <Inset className="w-250px bg-$accent-a2 rounded-0!" p="current" side="left">
         <ScrollArea scrollbars="vertical" type="hover">
           <Card>
-            <Heading size="4">串口设置</Heading>
+            <Heading size="3">串口设置</Heading>
             <Field>
               <SerialSelect />
             </Field>
-            <Field label="波特率">
+            <Field label="波特率" text={{ size: '2' }}>
               <BaudRateSelect className="w-140px" disabled={connected} value={baudRate} onValueChange={setBaudRate} />
             </Field>
-            <Field label="校验位">
+            <Field label="校验位" text={{ size: '2' }}>
               <ParityTypeSelect className="w-140px" disabled={connected} value={parity} onValueChange={setParity} />
             </Field>
-            <Field label="停止位">
+            <Field label="停止位" text={{ size: '2' }}>
               <StopBitsSelect className="w-140px" disabled={connected} value={stopBits} onValueChange={setStopBits} />
             </Field>
-            <Field label="数据位">
+            <Field label="数据位" text={{ size: '2' }}>
               <DataBitsSelect className="w-140px" disabled={connected} value={dataBits} onValueChange={setDataBits} />
             </Field>
           </Card>
           <Card className="mt-3">
-            <Heading size="4">接收设置</Heading>
-            <Field label="接收格式">
+            <Heading size="3">接收设置</Heading>
+            <Field label="接收格式" text={{ size: '2' }}>
               <DataModeRadio value={recvMode} onValueChange={setRecvMode} />
             </Field>
           </Card>
           <Card className="mt-3">
-            <Heading size="4">发送设置</Heading>
-            <Field label="发送格式">
+            <Heading size="3">发送设置</Heading>
+            <Field label="发送格式" text={{ size: '2' }}>
               <DataModeRadio value={sendMode} onValueChange={setSendMode} />
             </Field>
-            <Field label="定时发送" />
+            <Field label="定时发送" text={{ size: '2' }} />
             <Flex align="center">
               <Checkbox checked={autoSend} className="mr-2" size="3" onCheckedChange={setAutoSend} />
-              <TextField.Input
+              <TextField.Root
                 min={0}
                 size="1"
                 type="number"
@@ -111,10 +131,10 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
           className="grow-2"
           language={`serial-${recvMode}`}
           scrollBeyondLastLine={false}
-          value={recvData}
+          ref={recvEditorRef}
         >
           <div className="grow" />
-          <Button variant="soft" onClick={clearRecvData}>
+          <Button variant="soft" onClick={handleClearRecv}>
             清空
           </Button>
         </Editor>
@@ -122,15 +142,10 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
           className="mt-3"
           countType="send"
           title="数据发送"
-          action={
-            <Button color="cyan" disabled={rec || true /** todo */} size="1" variant="soft">
-              <CounterClockwiseClockIcon />
-              <RText>数据流重现</RText>
-            </Button>
-        }
+          action={<ReplayButton />}
         />
         <Editor className="mt-3 grow" language={`serial-${sendMode}`} value={sendData} onValueChange={setSendData}>
-          <Button disabled={!connected} onClick={writeData}>
+          <Button disabled={!connected || replaying} onClick={writeData}>
             发送 Meta + Enter
           </Button>
           <div className="grow" />

@@ -2,7 +2,7 @@ import type { AlertDialogRef } from '@/components/Dialog'
 
 export interface ShowDialogOptions {
   title: string
-  description: string
+  description?: React.ReactNode
   actionText?: string
   onAction?: React.MouseEventHandler<HTMLButtonElement>
   cancelText?: string
