@@ -14,7 +14,6 @@ import { RecButton } from './RecButton'
 import { ReplayButton } from './ReplayButton'
 import { useSerialStore } from '@/store/serial'
 import { usePortStore, writeData } from '@/store/port'
-import { reqIdle } from '@/utils/stream'
 
 export interface SerialPanelProps {
 }

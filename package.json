@@ -11,6 +11,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "tsc": "tsc",
     "lint": "eslint --cache .",
     "lint:fix": "eslint --fix .",
     "postinstall": "simple-git-hooks"
