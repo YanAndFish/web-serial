@@ -32,11 +32,11 @@ export const ReplayButton: FC = () => {
 
   return (
     <>
-      <Button onClick={handleReplayData} color="cyan" disabled={rec || !connected} size="1" variant="soft">
+      <Button color="cyan" disabled={rec || !connected} size="1" variant="soft" onClick={handleReplayData}>
         {replaying ? <UpdateIcon className={style['spin-icon-load']} /> : <CounterClockwiseClockIcon />}
         <RText>数据流重现</RText>
       </Button>
-      <Dialog ref={ref}></Dialog>
+      <Dialog ref={ref} />
     </>
   )
 }

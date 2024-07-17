@@ -125,12 +125,12 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
           title="数据接收"
         />
         <Editor
+          ref={recvEditorRef}
           autoScollOnBottom
           readonly
           className="grow-2"
           language={`serial-${recvMode}`}
           scrollBeyondLastLine={false}
-          ref={recvEditorRef}
         >
           <div className="grow" />
           <Button variant="soft" onClick={handleClearRecv}>
@@ -138,10 +138,10 @@ export const SerialPanel: FC<SerialPanelProps> = () => {
           </Button>
         </Editor>
         <EditorHeader
+          action={<ReplayButton />}
           className="mt-3"
           countType="send"
           title="数据发送"
-          action={<ReplayButton />}
         />
         <Editor className="mt-3 grow" language={`serial-${sendMode}`} value={sendData} onValueChange={setSendData}>
           <Button disabled={!connected || replaying} onClick={writeData}>

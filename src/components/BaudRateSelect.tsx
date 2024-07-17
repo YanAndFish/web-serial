@@ -59,7 +59,7 @@ export const BaudRateSelect: React.FC<BaudRateSelectProps> = ({ value, onValueCh
             )
           : <TextField.Root placeholder="波特率..." value={value} onChange={handleInputChange} />
       }
-      <Button onClick={handleUpdateMode} variant="soft" disabled={disabled}>
+      <Button disabled={disabled} variant="soft" onClick={handleUpdateMode}>
         {mode === 'select' ? <KeyboardIcon /> : <DropdownMenuIcon />}
       </Button>
     </Flex>
